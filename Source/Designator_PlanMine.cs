@@ -1,6 +1,7 @@
 ﻿using RimWorld;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Verse;
 
@@ -10,23 +11,17 @@ namespace MinePlan
     {
         public bool didWeDesignateAnything = false;
 
-        public override int DraggableDimensions
-        {
-            get
-            {
-                return 2;
-            }
-        }
+        public override int DraggableDimensions => 2;
 
         public Designator_PlanMine()
         {
-            defaultLabel = "Plan to Mine";
-            icon = ContentFinder<Texture2D>.Get("MTP/PlanMine", true);
-            defaultDesc = "Quickly change planning to mining designations";
-            soundDragSustain = SoundDefOf.DesignateDragStandard;
-            soundDragChanged = SoundDefOf.DesignateDragStandardChanged;
-            useMouseIcon = true;
-            soundSucceeded = SoundDefOf.DesignateHaul;
+            this.defaultLabel = "Plan to Mine";
+            this.icon = ContentFinder<Texture2D>.Get("MTP/PlanMine", true);
+            this.defaultDesc = "Quickly change planning to mining designations";
+            this.soundDragSustain = SoundDefOf.Designate_DragStandard;
+            this.soundDragChanged = SoundDefOf.Designate_DragStandardChanged;
+            this.useMouseIcon = true;
+            this.soundSucceeded = SoundDefOf.Designate_Haul;
             DesignationCategoryDef named = DefDatabase<DesignationCategoryDef>.GetNamed("Orders", true);
             Type type = named.specialDesignatorClasses.Find((Type x) => x == GetType());
             if (type == null)
@@ -54,7 +49,7 @@ namespace MinePlan
             {
                 return AcceptanceReport.WasAccepted;
             }
-            Thing thing = MineUtility.MineableInCell(c, Find.VisibleMap);
+            Thing thing = c.GetFirstMineable(Find.VisibleMap);
             if (thing == null)
             {
                 return "MessageMustDesignateMineable".Translate();
@@ -87,14 +82,8 @@ namespace MinePlan
             }
         }
 
-        public override void DesignateThing(Thing t)
-        {
-            DesignateSingleCell(t.Position);
-        }
+        public override void DesignateThing(Thing t) => DesignateSingleCell(t.Position);
 
-        public override void SelectedUpdate()
-        {
-            GenUI.RenderMouseoverBracket();
-        }
+        public override void SelectedUpdate() => GenUI.RenderMouseoverBracket();
     }
 }

@@ -10,23 +10,17 @@ namespace MinePlan
     {
         public bool didWeDesignateAnything = false;
 
-        public override int DraggableDimensions
-        {
-            get
-            {
-                return 2;
-            }
-        }
+        public override int DraggableDimensions => 2;
 
         public Designator_MinePlan()
         {
-            defaultLabel = "Mine to Plan";
-            icon = ContentFinder<Texture2D>.Get("MTP/MinePlan", true);
-            defaultDesc = "Quickly change mining to planning designations";
-            soundDragSustain = SoundDefOf.DesignateDragStandard;
-            soundDragChanged = SoundDefOf.DesignateDragStandardChanged;
-            useMouseIcon = true;
-            soundSucceeded = SoundDefOf.DesignateHaul;
+            this.defaultLabel = "Mine to Plan";
+            this.icon = ContentFinder<Texture2D>.Get("MTP/MinePlan", true);
+            this.defaultDesc = "Quickly change mining to planning designations";
+            this.soundDragSustain = SoundDefOf.Designate_DragStandard;
+            this.soundDragChanged = SoundDefOf.Designate_DragStandardChanged;
+            this.useMouseIcon = true;
+            this.soundSucceeded = SoundDefOf.Designate_Haul;
             DesignationCategoryDef named = DefDatabase<DesignationCategoryDef>.GetNamed("Orders", true);
             Type type = named.specialDesignatorClasses.Find((Type x) => x == GetType());
             if (type == null)
@@ -88,14 +82,8 @@ namespace MinePlan
             }
         }
 
-        public override void DesignateThing(Thing t)
-        {
-            DesignateSingleCell(t.Position);
-        }
+        public override void DesignateThing(Thing t) => DesignateSingleCell(t.Position);
 
-        public override void SelectedUpdate()
-        {
-            GenUI.RenderMouseoverBracket();
-        }
+        public override void SelectedUpdate() => GenUI.RenderMouseoverBracket();
     }
 }
