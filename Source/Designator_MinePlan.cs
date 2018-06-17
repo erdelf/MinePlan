@@ -1,88 +1,59 @@
-﻿using RimWorld;
-using System;
-using System.Collections.Generic;
-using UnityEngine;
-using Verse;
-
-namespace MinePlan
+﻿namespace MinePlan
 {
+    using System;
+    using System.Collections.Generic;
+    using JetBrains.Annotations;
+    using RimWorld;
+    using UnityEngine;
+    using Verse;
+
+    [UsedImplicitly]
     public class Designator_MinePlan : Designator
     {
-        public bool didWeDesignateAnything = false;
 
         public override int DraggableDimensions => 2;
 
         public Designator_MinePlan()
         {
             this.defaultLabel = "Mine to Plan";
-            this.icon = ContentFinder<Texture2D>.Get("MTP/MinePlan", true);
+            this.icon = ContentFinder<Texture2D>.Get(itemPath: "MTP/MinePlan");
             this.defaultDesc = "Quickly change mining to planning designations";
             this.soundDragSustain = SoundDefOf.Designate_DragStandard;
-            this.soundDragChanged = SoundDefOf.Designate_DragStandardChanged;
+            this.soundDragChanged = SoundDefOf.Designate_DragStandard_Changed;
             this.useMouseIcon = true;
             this.soundSucceeded = SoundDefOf.Designate_Haul;
-            DesignationCategoryDef named = DefDatabase<DesignationCategoryDef>.GetNamed("Orders", true);
-            Type type = named.specialDesignatorClasses.Find((Type x) => x == GetType());
+            DesignationCategoryDef named = DefDatabase<DesignationCategoryDef>.GetNamed(defName: "Orders");
+            Type type = named.specialDesignatorClasses.Find(match: x => x == this.GetType());
             if (type == null)
             {
-                named.specialDesignatorClasses.Add(GetType());
+                named.specialDesignatorClasses.Add(item: this.GetType());
                 named.ResolveReferences();
-                DesignationCategoryDef named2 = DefDatabase<DesignationCategoryDef>.GetNamed("OrdersMinePlan", true);
+                DesignationCategoryDef named2 = DefDatabase<DesignationCategoryDef>.GetNamed(defName: "OrdersMinePlan");
                 List<DesignationCategoryDef> allDefsListForReading = DefDatabase<DesignationCategoryDef>.AllDefsListForReading;
-                allDefsListForReading.Remove(named2);
+                allDefsListForReading.Remove(item: named2);
                 DefDatabase<DesignationCategoryDef>.ResolveAllReferences();
             }
         }
 
         public override AcceptanceReport CanDesignateCell(IntVec3 c)
         {
-            if (!c.InBounds(Find.VisibleMap))
-            {
-                return AcceptanceReport.WasRejected;
-            }
-            if (Find.VisibleMap.designationManager.DesignationAt(c, DesignationDefOf.Mine) != null)
-            {
-                return AcceptanceReport.WasAccepted;
-            }
-            /*if (c.Fogged())
-            {
-                return true;
-            }
-            Thing thing = MineUtility.MineableInCell(c);
-            if (thing == null)
-            {
-                return "MessageMustDesignateMineable".Translate();
-            }
-            AcceptanceReport result = this.CanDesignateThing(thing);
-            if (!result.Accepted)
-            {
-                return result;
-            }
-            return AcceptanceReport.WasAccepted;*/
-            return AcceptanceReport.WasRejected;
+            if (!c.InBounds(map: Find.CurrentMap)) return AcceptanceReport.WasRejected;
+            return Find.CurrentMap.designationManager.DesignationAt(c: c, def: DesignationDefOf.Mine) != null ? AcceptanceReport.WasAccepted : AcceptanceReport.WasRejected;
         }
 
-        public override AcceptanceReport CanDesignateThing(Thing t)
-        {
-            if (Find.VisibleMap.designationManager.DesignationAt(t.Position, DesignationDefOf.Mine) != null)
-            {
-                return AcceptanceReport.WasAccepted;
-            }
-            return AcceptanceReport.WasRejected;
-        }
+        public override AcceptanceReport CanDesignateThing(Thing t) => 
+            Find.CurrentMap.designationManager.DesignationAt(c: t.Position, def: DesignationDefOf.Mine) != null ? AcceptanceReport.WasAccepted : AcceptanceReport.WasRejected;
 
         public override void DesignateSingleCell(IntVec3 loc)
         {
-            Designation des = Find.VisibleMap.designationManager.DesignationAt(loc, DesignationDefOf.Mine);
-            if (des != null)
-            {
-                Find.VisibleMap.designationManager.RemoveDesignation(des);
-                if (Find.VisibleMap.designationManager.DesignationAt(loc, DesignationDefOf.Plan) == null)
-                    Find.VisibleMap.designationManager.AddDesignation(new Designation(loc, DesignationDefOf.Plan));
-            }
+            Designation des = Find.CurrentMap.designationManager.DesignationAt(c: loc, def: DesignationDefOf.Mine);
+            if (des == null) return;
+            Find.CurrentMap.designationManager.RemoveDesignation(des: des);
+            if (Find.CurrentMap.designationManager.DesignationAt(c: loc, def: DesignationDefOf.Plan) == null)
+                Find.CurrentMap.designationManager.AddDesignation(newDes: new Designation(target: loc, def: DesignationDefOf.Plan));
         }
 
-        public override void DesignateThing(Thing t) => DesignateSingleCell(t.Position);
+        public override void DesignateThing(Thing t) => this.DesignateSingleCell(loc: t.Position);
 
         public override void SelectedUpdate() => GenUI.RenderMouseoverBracket();
     }
