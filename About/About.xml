@@ -2,7 +2,11 @@
 <ModMetaData>
 	<name>MinePlan Designator</name>
 	<author>erdelf</author>
-	<targetVersion>1.0.0</targetVersion>
+	<packageId>erdelf.MinePlan</packageId>
+	<supportedVersions>
+		<li>1.0</li>
+		<li>1.1</li>
+	</supportedVersions>
 	<description>Adds two designators to switch mining and planning designations.
 Savegame compatible.
 </description>
